@@ -1,0 +1,53 @@
+import numpy as np
+import matplotlib.pyplot as plt
+np.random.seed(666)
+m = 100000
+x = np.random.normal(2,1,size = m)
+y = x * 4.+ 3.+ np.random.normal(0,3,size = m)
+x = x.reshape(-1,1)
+#批量梯度下降的拟合
+def j(theta,x_b,y):
+    try:
+        return np.sum((y-x_b.dot(theta))**2)/len(y)
+    except:
+        return float('inf')
+def dj(theta,x_b,y):
+    return x_b.T.dot(x_b.dot(theta)-y)*2/len(y)
+def gd(x_b,y,initial_theta,eta,n_iters=1e4,epsilon=1e-4):
+    theta = initial_theta
+    cur_iter = 0
+    while cur_iter <n_iters:
+        gradient = dj(theta,x_b,y)
+        last_theta = theta
+        theta = theta - eta*gradient
+        if(abs(j(theta,x_b,y)-j(last_theta,x_b,y))<epsilon):
+            break
+        cur_iter += 1
+    return theta
+  x_b = np.hstack([np.ones((len(x),1)),x])
+initial_theta = np.zeros(x_b.shape[1])
+eta = 0.01
+theta = gd(x_b,y,initial_theta,eta)
+theta
+
+随机梯度下降算法
+def dj_sgd(theta,x_b_i,y_i):
+    return x_b_i.T.dot(x_b_i.dot(theta)-y_i)*2
+def sgd(x_b,y,initial_theta,n_iters) :
+    
+    t0 = 5
+    t1 = 50
+    
+    def eta(t):
+        return t0/(t+t1)#学习率跟随着循环次数的增加不断变小
+        
+    theta = initial_theta
+    for cur_iter in range(n_iters):
+        rand_i = np.random.randint(len(x_b))#随机生成0-x总行数中的整数
+        gradient = dj_sgd(theta,x_b[rand_i],y[rand_i])
+        theta = theta - eta(cur_iter) * gradient
+    return theta
+x_b = np.hstack([np.ones((len(x),1)),x])
+initial_theta = np.zeros(x_b.shape[1])
+theta1 = sgd(x_b,y,initial_theta,n_iters = len(x_b)//3)#//除法结果向下取整,这里只使用了三分之一个样本数的循环
+theta1
